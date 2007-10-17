@@ -1,4 +1,3 @@
-{
 Copyright (c) 1997-2007, Václav Haisman
 
 All rights reserved.
@@ -23,59 +22,3 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-}
-{$ifdef DEBUG}
-  {$D+,L+,Y+,R+,I+,C+,S+,V+,Q+}
-{$endif}
-
-unit Fronta;
-
-interface
-uses Seznam, SezClen{$ifndef NOMSG}, Zpravy{$endif}, Konsts;
-
-type
-     PFronta = ^TFronta;
-     TFronta = object(TSeznam)
-                 procedure Put(po : PSeznamClen); virtual;
-                 function Get : PSeznamClen; virtual;
-                 constructor Init(imaxobjs : longint; ityp : TClenTyp{$ifndef NOMSG}; imajitel : PKomunikace{$endif});
-                 destructor Done; virtual;
-               end;
-
-implementation
-
-procedure TFronta.Put(po : PSeznamClen);
-begin
-  VlozObj(po);
-end;
-
-function TFronta.Get : PSeznamClen;
-begin
-  if pocet > 0 then begin
-    if cache = ring.next then
-      ZneplatniCache;
-    Get := ring.next;
-    ring.next^.VyradSe;
-    dec(pocet);
-  end
-  else begin
-    vysl := EmptyList;
-    Get := nil;
-    exit;
-  end;
-  vysl := Ok;
-end;
-
-constructor TFronta.Init(imaxobjs : longint; ityp : TClenTyp{$ifndef NOMSG}; imajitel : PKomunikace{$endif});
-begin
-  inherited Init(imaxobjs, ityp{$ifndef NOMSG}, imajitel{$endif});
-  objtyp := FrontaID;
-end;
-
-destructor TFronta.Done;
-begin
-  inherited Done;
-end;
-
-
-end.
